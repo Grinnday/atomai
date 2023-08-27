@@ -245,7 +245,7 @@ class dklGPTrainer(GPTrainer):
 
     def compile_trainer(self, X: Union[torch.Tensor, np.ndarray],
                         y: Union[torch.Tensor, np.ndarray],
-                        training_cycles: int = 1,
+                        training_cycles: int = 1, k_type: str = 'matern', nu: float = = 2.5, hidden_dim = [1000,500,50],
                         **kwargs: Union[Type[torch.nn.Module], int, bool, float]
                         ) -> None:
         """
@@ -277,7 +277,7 @@ class dklGPTrainer(GPTrainer):
         X, y = self.set_data(X, y)
         input_dim, embedim = self.dimdict["input_dim"], self.dimdict["embedim"]
         feature_net = kwargs.get("feature_extractor", fcFeatureExtractor)
-        feature_extractor = feature_net(input_dim, embedim)
+        feature_extractor = feature_net(input_dim, embedim, hidden_dim)
         freeze_weights = kwargs.get("freeze_weights", False)
         if freeze_weights:
             for p in feature_extractor.parameters():
@@ -286,7 +286,7 @@ class dklGPTrainer(GPTrainer):
             batch_shape=torch.Size([y.shape[0]]))
         self.gp_model = GPRegressionModel(
             X, y, likelihood, feature_extractor, embedim,
-            kwargs.get("grid_size", 50))
+            kwargs.get("grid_size", 50), k_type: str = 'matern', nu: float = = 2.5)
         self.likelihood = likelihood
         self.gp_model.to(self.device)
         self.likelihood.to(self.device)
@@ -306,7 +306,7 @@ class dklGPTrainer(GPTrainer):
 
     def run(self, X: Union[torch.Tensor, np.ndarray] = None,
             y: Union[torch.Tensor, np.ndarray] = None,
-            training_cycles: int = 1,
+            training_cycles: int = 1, k_type: str = 'matern', nu: float = 2.5, hidden_dim = [1000,500,50],
             **kwargs: Union[Type[torch.nn.Module], int, bool, float]
             ) -> Type[gpytorch.models.ExactGP]:
         """
@@ -330,7 +330,7 @@ class dklGPTrainer(GPTrainer):
         """
         if not self.compiled:
             if self.correlated_output:
-                self.compile_trainer(X, y, training_cycles, **kwargs)
+                self.compile_trainer(X, y, training_cycles, k_type = 'matern', nu = 2.5, hidden_dim = [1000,500,50], **kwargs)
             else:
                 self.compile_multi_model_trainer(X, y, training_cycles, **kwargs)
         for e in range(self.training_cycles):
