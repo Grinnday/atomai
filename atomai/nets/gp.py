@@ -31,17 +31,26 @@ class GPRegressionModel(gpytorch.models.ExactGP):
     def __init__(self, X: torch.Tensor, y: torch.Tensor,
                  likelihood: Type[gpytorch.likelihoods.Likelihood],
                  feature_extractor: Type[torch.nn.Module], embedim: int,
-                 grid_size: int = 50) -> None:
+                 grid_size: int = 50, kernel_type = 'matern', nu = 2.5) -> None:
         """
         Initializes DKL GP module
         """
         super(GPRegressionModel, self).__init__(X, y, likelihood)
         batch_dim = y.size(0)
         self.mean_module = gpytorch.means.ConstantMean(batch_shape=torch.Size([batch_dim]))
-        base_kernel = gpytorch.kernels.ScaleKernel(
-            gpytorch.kernels.MaternKernel(nu = 1,
-                ard_num_dims=embedim, batch_shape=torch.Size([batch_dim])),
-                batch_shape=torch.Size([batch_dim]))
+        if kernel_type == 'matern':
+            base_kernel = gpytorch.kernels.ScaleKernel(
+                gpytorch.kernels.MaternKernel(nu,
+                    ard_num_dims=embedim, batch_shape=torch.Size([batch_dim])),
+                    batch_shape=torch.Size([batch_dim]))
+        elif kernel_type == 'rbf':
+            base_kernel = gpytorch.kernels.ScaleKernel(
+                gpytorch.kernels.RBFKernel(
+                    ard_num_dims=embedim, batch_shape=torch.Size([batch_dim])),
+                    batch_shape=torch.Size([batch_dim]))
+        else:
+            raise ValueError("base_kernel must be either 'rbf', 'matern', or a custom gpytorch.kernels.Kernel object")
+            
         self.covar_module = gpytorch.kernels.GridInterpolationKernel(
             base_kernel, num_dims=embedim, grid_size=grid_size)
         self.feature_extractor = feature_extractor
