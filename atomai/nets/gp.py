@@ -39,7 +39,7 @@ class GPRegressionModel(gpytorch.models.ExactGP):
         batch_dim = y.size(0)
         self.mean_module = gpytorch.means.ConstantMean(batch_shape=torch.Size([batch_dim]))
         base_kernel = gpytorch.kernels.ScaleKernel(
-            gpytorch.kernels.RBFKernel(
+            gpytorch.kernels.MaternKernel(nu = 2.5,
                 ard_num_dims=embedim, batch_shape=torch.Size([batch_dim])),
                 batch_shape=torch.Size([batch_dim]))
         self.covar_module = gpytorch.kernels.GridInterpolationKernel(
