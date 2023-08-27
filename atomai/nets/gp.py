@@ -18,7 +18,7 @@ class fcFeatureExtractor(torch.nn.Sequential):
         super(fcFeatureExtractor, self).__init__()
         hidden_dim = kwargs.get("hidden_dim")
         if hidden_dim is None:
-            hidden_dim = [1000, 500, 50]
+            hidden_dim = [5000, 500, 50]
         hidden_dim.append(embedim)
         self.add_module("linear1", torch.nn.Linear(feat_dim, hidden_dim[0]))
         for i, h in enumerate(hidden_dim[1:]):
@@ -39,7 +39,7 @@ class GPRegressionModel(gpytorch.models.ExactGP):
         batch_dim = y.size(0)
         self.mean_module = gpytorch.means.ConstantMean(batch_shape=torch.Size([batch_dim]))
         base_kernel = gpytorch.kernels.ScaleKernel(
-            gpytorch.kernels.MaternKernel(nu = 2.5,
+            gpytorch.kernels.MaternKernel(nu = 0,
                 ard_num_dims=embedim, batch_shape=torch.Size([batch_dim])),
                 batch_shape=torch.Size([batch_dim]))
         self.covar_module = gpytorch.kernels.GridInterpolationKernel(
