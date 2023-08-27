@@ -31,7 +31,7 @@ class GPRegressionModel(gpytorch.models.ExactGP):
     def __init__(self, X: torch.Tensor, y: torch.Tensor,
                  likelihood: Type[gpytorch.likelihoods.Likelihood],
                  feature_extractor: Type[torch.nn.Module], embedim: int,
-                 grid_size: int = 50, kernel_type = 'matern', nu = 2.5) -> None:
+                 grid_size: int = 50, kernel_type : str = 'matern', nu : float = 2.5) -> None:
         """
         Initializes DKL GP module
         """
