@@ -286,7 +286,7 @@ class dklGPTrainer(GPTrainer):
             batch_shape=torch.Size([y.shape[0]]))
         self.gp_model = GPRegressionModel(
             X, y, likelihood, feature_extractor, embedim,
-            kwargs.get("grid_size", 50), k_type: str = 'matern', nu: float = = 2.5)
+            kwargs.get("grid_size", 50), k_type, nu)
         self.likelihood = likelihood
         self.gp_model.to(self.device)
         self.likelihood.to(self.device)
@@ -330,7 +330,7 @@ class dklGPTrainer(GPTrainer):
         """
         if not self.compiled:
             if self.correlated_output:
-                self.compile_trainer(X, y, training_cycles, k_type = 'matern', nu = 2.5, hidden_dim = [1000,500,50], **kwargs)
+                self.compile_trainer(X, y, training_cycles, k_type, nu, hidden_dim, **kwargs)
             else:
                 self.compile_multi_model_trainer(X, y, training_cycles, **kwargs)
         for e in range(self.training_cycles):
