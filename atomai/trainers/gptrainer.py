@@ -246,7 +246,7 @@ class dklGPTrainer(GPTrainer):
     def compile_trainer(self, X: Union[torch.Tensor, np.ndarray],
                         y: Union[torch.Tensor, np.ndarray],
                         training_cycles: int = 1, k_base: str = 'matern', nu: float = 2.5, hidden_dim = [1000,500,50],
-                        lengthscale_prior : optional[torch.Tensor] = None,
+                        lengthscale_prior : Optional[torch.Tensor] = None,
                         lengthscale_constraints : Optional[Tuple[List[float]]] = None, 
                         grid_size : Optional[int] = 50,
                         **kwargs: Union[Type[torch.nn.Module], int, bool, float]
