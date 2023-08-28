@@ -277,7 +277,7 @@ class dklGPTrainer(GPTrainer):
         X, y = self.set_data(X, y)
         input_dim, embedim = self.dimdict["input_dim"], self.dimdict["embedim"]
         feature_net = kwargs.get("feature_extractor", fcFeatureExtractor)
-        feature_extractor = feature_net(input_dim, embedim, hidden_dim)
+        feature_extractor = feature_net(input_dim, embedim, hidden_dim = hidden_dim)
         freeze_weights = kwargs.get("freeze_weights", False)
         if freeze_weights:
             for p in feature_extractor.parameters():
