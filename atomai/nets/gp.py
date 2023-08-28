@@ -18,7 +18,7 @@ class fcFeatureExtractor(torch.nn.Sequential):
         super(fcFeatureExtractor, self).__init__()
         hidden_dim = kwargs.get("hidden_dim")
         if hidden_dim is None:
-            hidden_dim = [5000, 500, 50]
+            hidden_dim = [1000, 500, 50]
         hidden_dim.append(embedim)
         self.add_module("linear1", torch.nn.Linear(feat_dim, hidden_dim[0]))
         for i, h in enumerate(hidden_dim[1:]):
@@ -31,22 +31,28 @@ class GPRegressionModel(gpytorch.models.ExactGP):
     def __init__(self, X: torch.Tensor, y: torch.Tensor,
                  likelihood: Type[gpytorch.likelihoods.Likelihood],
                  feature_extractor: Type[torch.nn.Module], embedim: int,
-                 grid_size: int = 50, kernel_type : str = 'matern', nu : float = 2.5) -> None:
+                 grid_size: int = 50, kernel_base : str = 'matern', 
+                 nu : float = 2.5, lengthscale_contraints : Optional[Tuple[List[float]]] = None, lengthscale_prior :  Optional[torch.Tensor] = None) -> None:
         """
         Initializes DKL GP module
         """
         super(GPRegressionModel, self).__init__(X, y, likelihood)
         batch_dim = y.size(0)
         self.mean_module = gpytorch.means.ConstantMean(batch_shape=torch.Size([batch_dim]))
-        if kernel_type == 'matern':
+        if lengthscale_constraints:
+                lengthscale_constraints = gpytorch.constraints.Interval(
+                    torch.tensor(lengthscale_constraints[0]),
+                    torch.tensor(lengthscale_constraints[1]))
+            
+        if kernel_base == 'matern':
             base_kernel = gpytorch.kernels.ScaleKernel(
                 gpytorch.kernels.MaternKernel(nu,
-                    ard_num_dims=embedim, batch_shape=torch.Size([batch_dim])),
+                    ard_num_dims=embedim, batch_shape=torch.Size([batch_dim]), lengthscale_prior = lengthscale_prior, lengthscale_constraint=lengthscale_constraints),
                     batch_shape=torch.Size([batch_dim]))
-        elif kernel_type == 'rbf':
+        elif kernel_base == 'rbf':
             base_kernel = gpytorch.kernels.ScaleKernel(
                 gpytorch.kernels.RBFKernel(
-                    ard_num_dims=embedim, batch_shape=torch.Size([batch_dim])),
+                    ard_num_dims=embedim, batch_shape=torch.Size([batch_dim]), lengthscale_prior = lengthscale_prior, lengthscale_constraint=lengthscale_constraints),
                     batch_shape=torch.Size([batch_dim]))
         else:
             raise ValueError("base_kernel must be either 'rbf', 'matern', or a custom gpytorch.kernels.Kernel object")
