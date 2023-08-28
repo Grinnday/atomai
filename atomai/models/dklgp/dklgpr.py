@@ -72,6 +72,8 @@ class dklGPR(dklGPTrainer):
             training_cycles: int = 1,
             k_type: str = 'matern', 
             nu: float = 2.5, hidden_dim = [1000,500,50],
+            lengthscale_prior : optional[torch.Tensor] = None,
+            lengthscale_constraints : optional[tuple[list[float]]] = None, grid_size : int = 50,
             **kwargs: Union[Type[torch.nn.Module], bool, float]
             ) -> None:
         """
@@ -92,7 +94,7 @@ class dklGPR(dklGPTrainer):
             lr: learning rate (Default: 0.01)
             print_loss: print loss at every n-th training cycle (epoch)
         """
-        _ = self.run(X, y, training_cycles, k_type , nu, hidden_dim, **kwargs)
+        _ = self.run(X, y, training_cycles, k_type , nu, hidden_dim, lengthscale_prior, lengthscale_constraints, grid_size, **kwargs)
 
     def fit_ensemble(self, X: Union[torch.Tensor, np.ndarray],
                      y: Union[torch.Tensor, np.ndarray],
